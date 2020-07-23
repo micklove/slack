@@ -1,6 +1,3 @@
-import com.slack.api.Slack;
-import com.slack.api.webhook.WebhookResponse;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -11,9 +8,6 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
-import static com.slack.api.webhook.WebhookPayloads.payload;
 import static java.net.http.HttpRequest.BodyPublishers.ofString;
 
 public class SimpleSlackWebhookClient {
@@ -43,10 +37,15 @@ public class SimpleSlackWebhookClient {
 	private static String getTemplatedMessage(String title, String summary, String status, String message, String messageIconUrl) throws IOException {
 		String slackTemplate = loadFileToString();
 		String result = "";
+		String statusEmoji = ":white_check_mark:";
+		if (!"success".equalsIgnoreCase(status)) {
+			statusEmoji = ":boom::boom::boom::boom:";
+		}
 		Map<String, String> vals = new HashMap<>();
 		vals.put("${TITLE}", title.toUpperCase());
 		vals.put("${SUMMARY}", summary);
 		vals.put("${STATUS}", status);
+		vals.put("${STATUS_EMOJI}", statusEmoji);
 		vals.put("${MESSAGE}", message);
 		vals.put("${ICON_URL}", messageIconUrl);
 		for (var val : vals.entrySet()) {
@@ -78,41 +77,5 @@ public class SimpleSlackWebhookClient {
 			e.printStackTrace();
 		}
 
-	}
-
-	private static void sendSlackMessage(String title, String message) {
-		WebhookResponse response = null;
-		try {
-			Slack slack = Slack.getInstance();
-			String webhookUrl = System.getenv("SLACK_WEBHOOK_URL");
-			String messageIconUrl = System.getenv("SLACK_MESSAGE_ICON");
-
-			System.out.println("SLACK_WEBHOOK_URL=" + webhookUrl);
-			System.out.println("SLACK_MESSAGE_ICON=" + messageIconUrl);
-//			System.exit(1);
-			response = slack.send(webhookUrl, payload(p -> p
-							.text(message)
-							.blocks(asBlocks(
-//							section(section -> {
-//								ImageElement image = new ImageElement();
-//								image.setImageUrl(messageIconUrl);
-//								return section.accessory(image);
-//							}),
-									section(section -> section.text(markdownText("*TITLE*\nSUMMARY\n\n *STATUS*"))),
-									divider(),
-									section(section -> section.text(markdownText("*MESSAGE*\n*DATE*\n")))
-//							actions(actions -> actions
-//									.elements(asElements(
-//											button(b -> b.text(plainText(pt -> pt.emoji(true).text("Farmhouse"))).value("v1")),
-//											button(b -> b.text(plainText(pt -> pt.emoji(true).text("Kin Khao"))).value("v2"))
-//									))
-//							)
-							))
-			));
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println(response); // e.g. WebhookResponse(code=200, message=OK, body=ok)
 	}
 }

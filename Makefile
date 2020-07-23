@@ -34,8 +34,11 @@ run-with-deps: validate-args $(JAR) $(MSG_TEXT) ## Build and execute the program
 		$(MSG_TEXT) \
 		$(TITLE)
 
-$(JAR): pom.xml src/main/java/*.java
+.PHONY: install
+install:
 	mvn clean install
+
+$(JAR): pom.xml src/main/java/*.java install
 
 dump-classpath: ## Show dependencies (classpath)
 	mvn dependency:build-classpath \

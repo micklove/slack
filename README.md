@@ -6,7 +6,13 @@ Using json template, created on https://app.slack.com/block-kit-builder
 
 ---
 
-Required ENV Properties
+### Help
+```bash
+make help
+```
+
+### Required ENV Properties
+The app expects the following properties to be loaded from the `Env`
 
 ```json
 export SLACK_WEBHOOK_URL='SLACK_WEBHOOK_URL=https://hooks.slack.com/services/SOMEVALUE/SOMEOTHERVALUE/SOMETOKENLOOKINGVALUE
