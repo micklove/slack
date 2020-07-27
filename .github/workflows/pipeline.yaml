@@ -18,5 +18,13 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11.0.3
-      - name: Build with Maven
+
+      - name: mvn-build
         run: make install
+
+      - name: Upload mvn zip artifact
+        run: ${{ steps.mvn-build.output.zip_output_path }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: slack_webhook_zip_output
+          path: ${{ steps.mvn-build.output.zip_output_path }}

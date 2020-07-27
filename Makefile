@@ -2,8 +2,10 @@
 # See https://stackoverflow.com/a/41115011/178808
 PROJECT_NAME=$(shell xmllint --xpath '/*[local-name()="project"]/*[local-name()="artifactId"]/text()' pom.xml)
 PROJECT_VERSION=$(shell xmllint --xpath '/*[local-name()="project"]/*[local-name()="version"]/text()' pom.xml)
-JAR:=target/$(PROJECT_NAME)-$(PROJECT_VERSION).jar
-JAR_WITH_DEPENDENCIES:=target/$(PROJECT_NAME)-$(PROJECT_VERSION)-jar-with-dependencies.jar
+OUTPUT_FILE_PREFIX=target/$(PROJECT_NAME)-$(PROJECT_VERSION)
+JAR:=$(OUTPUT_FILE_PREFIX).jar
+ZIP:=$(OUTPUT_FILE_PREFIX).zip
+JAR_WITH_DEPENDENCIES:=$(OUTPUT_FILE_PREFIX)-jar-with-dependencies.jar
 APP_MAIN_CLASS=$(PROJECT_NAME)
 
 MSG_TEXT ?= "hello world"
@@ -14,6 +16,7 @@ TITLE="my title"
 dump:
 	@echo PROJECT_VERSION: $(PROJECT_VERSION)
 	@echo JAR: $(JAR)
+	@echo ZIP: $(ZIP)
 	@echo APP_MAIN_CLASS: $(APP_MAIN_CLASS)
 
 
@@ -35,8 +38,11 @@ run-with-deps: validate-args $(JAR) $(MSG_TEXT) ## Build and execute the program
 		$(TITLE)
 
 .PHONY: install
-install:
-	mvn clean install
+install: clean dump
+	mvn install
+	@ls -al $(ZIP)
+	@ls -al $(JAR)
+	echo "::set-output name=zip_output_path::$(ZIP)"
 
 $(JAR): pom.xml src/main/java/*.java install
 
@@ -61,10 +67,6 @@ validate-args:
 	$(if $(strip $($(MSG_TEXT))),,$(error MSG_TEXT required, [$($(MSG_TEXT))] is invalid))
 	$(if $(strip $(TITLE)),,$(error TITLE required, [$(TITLE)] is invalid))
 
-# Upload a dummy file (with just the date in it) if MSG_TEXT is not provided
-$(FILE_TO_UPLOAD):
-	date > $@
 
 clean:
 	@mvn clean
-	@-rm -rf $(FILE_TO_UPLOAD)
