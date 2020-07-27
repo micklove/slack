@@ -20,7 +20,7 @@ jobs:
           java-version: 11.0.3
 
       - name: setup dependencies
-        run: apt-get install libxml2-utils
+        run: sudo apt-get install libxml2-utils
 
       - name: mvn-build
         run: make install
