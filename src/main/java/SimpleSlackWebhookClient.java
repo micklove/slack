@@ -23,11 +23,12 @@ public class SimpleSlackWebhookClient {
 
 		System.out.println("SLACK_WEBHOOK_URL=" + webhookUrl);
 		System.out.println("SLACK_MESSAGE_ICON=" + messageIconUrl);
-		simpleSlackMessage(title, summary, status, msg, webhookUrl, messageIconUrl);
+		sendSimpleSlackMessage(title, summary, status, msg, webhookUrl, messageIconUrl);
 	}
 
+
 	private static String loadFileToString() throws IOException {
-		ClassLoader classLoader = new SimpleSlackWebhookClient().getClass().getClassLoader();
+		ClassLoader classLoader = SimpleSlackWebhookClient.class.getClassLoader();
 
 		String slackMessage = "slack-message.json";
 		File file = new File(classLoader.getResource(slackMessage).getFile());
@@ -55,7 +56,7 @@ public class SimpleSlackWebhookClient {
 		return result;
 	}
 
-	private static void simpleSlackMessage(String title, String summary, String status, String message, String webhookUrl, String messageIconUrl ) {
+	public static void sendSimpleSlackMessage(String title, String summary, String status, String message, String webhookUrl, String messageIconUrl ) {
 		try {
 			var requestBody = getTemplatedMessage(title, summary, status, message, messageIconUrl);
 			System.out.println(requestBody);
@@ -66,14 +67,12 @@ public class SimpleSlackWebhookClient {
 					.uri(URI.create(webhookUrl))
 					.build();
 
-			HttpResponse<String> response = null;
+			HttpResponse<String> response;
 
 			response = client.send(request,
 					HttpResponse.BodyHandlers.ofString());
 			System.out.println(response.body());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
