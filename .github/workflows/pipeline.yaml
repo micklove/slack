@@ -25,8 +25,11 @@ jobs:
       - name: mvn-build
         run: make install
 
+      - name: debug
+        run: echo ${{ steps.mvn-build.outputs.zip_output_path }}
+
       - name: Upload mvn zip artifact
         uses: actions/upload-artifact@v1
         with:
           name: zip_output_path
-          path: ${{ steps.mvn-build.output.zip_output_path }}
+          path: ${{ steps.mvn-build.outputs.zip_output_path }}
