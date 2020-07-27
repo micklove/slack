@@ -28,5 +28,5 @@ jobs:
       - name: Upload mvn zip artifact
         uses: actions/upload-artifact@v1
         with:
-          name: slack_webhook_zip_output
+          name: zip_output_path
           path: ${{ steps.mvn-build.output.zip_output_path }}
