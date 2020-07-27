@@ -32,4 +32,5 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: zip_output_path
-          path: ${{ steps.mvn-build.outputs.zip_output_path }}
+          path: target/SimpleSlackWebhookClient-1.0-SNAPSHOT.zip
+#          path: ${{ steps.mvn-build.outputs.zip_output_path }}
