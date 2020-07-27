@@ -1,0 +1,15 @@
+name: Build application
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install
+        run: make install
+
+      - name: publish - TODO
+        run: echo todo
