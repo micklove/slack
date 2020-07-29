@@ -11,6 +11,10 @@ Using json template, created on https://app.slack.com/block-kit-builder
 
 ---
 
+### Branches
+* `main` branch uses jdk 11
+* `java18` branch for jdk 1.8
+
 ### Help
 ```bash
 make help
