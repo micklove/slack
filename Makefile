@@ -6,10 +6,15 @@ OUTPUT_FILE_PREFIX=target/$(PROJECT_NAME)-$(PROJECT_VERSION)
 JAR:=$(OUTPUT_FILE_PREFIX).jar
 ZIP:=$(OUTPUT_FILE_PREFIX).zip
 JAR_WITH_DEPENDENCIES:=$(OUTPUT_FILE_PREFIX)-jar-with-dependencies.jar
+
+# Assumes the main class is the same as the project name from pom.xml
 APP_MAIN_CLASS=$(PROJECT_NAME)
 
-MSG_TEXT ?= "hello world"
-TITLE="my title"
+# message contents for testing
+TITLE=my title
+SUMMARY=my summary
+STATUS=success
+MSG_TEXT ?= hello world
 
 -include ./lib/help.mk
 
@@ -22,9 +27,9 @@ dump:
 
 all: validate-args clean $(JAR) run
 
-run: validate-args $(JAR) '$(MSG_TEXT)' ## Build and execute the program e.g. AWS_PROFILE=some make run MSG_TEXT=/my/file/path TITLE=my-bucket-name ROLE_TO_ASSUME_NAME=my-role
+run: validate-args $(JAR) ## Build and execute the program e.g. AWS_PROFILE=some make run MSG_TEXT=/my/file/path TITLE=my-bucket-name ROLE_TO_ASSUME_NAME=my-role
 	mvn exec:java \
-		-Dexec.args="$(MSG_TEXT) $(TITLE)" \
+		-Dexec.args="'$(TITLE)' '$(SUMMARY)' '$(STATUS)' '$(MSG_TEXT)' " \
 		-Dexec.commandLineArgs="$(TITLE)" \
 		-Dexec.mainClass="$(APP_MAIN_CLASS)" \
 		-Dexec.cleanupDaemonThreads=false
@@ -64,8 +69,10 @@ dump-cp-list:
 		-Dmdep.outputFile=classpath
 
 validate-args:
-	$(if $(strip $($(MSG_TEXT))),,$(error MSG_TEXT required, [$($(MSG_TEXT))] is invalid))
+	$(if $(strip $(SUMMARY)),,$(error SUMMARY required, [$(SUMMARY)] is invalid))
+	$(if $(strip $(STATUS)),,$(error STATUS required, [$(STATUS)] is invalid))
 	$(if $(strip $(TITLE)),,$(error TITLE required, [$(TITLE)] is invalid))
+	$(if $(strip $(MSG_TEXT)),,$(error MSG_TEXT required, [($(MSG_TEXT)] is invalid)))
 
 
 clean:
