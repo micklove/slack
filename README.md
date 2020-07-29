@@ -6,6 +6,11 @@ Using json template, created on https://app.slack.com/block-kit-builder
 
 ---
 
+### Github Actions build
+![Java CI with Maven](https://github.com/micklove/slack/workflows/Java%20CI%20with%20Maven/badge.svg)
+
+---
+
 ### Help
 ```bash
 make help
@@ -15,7 +20,7 @@ make help
 The app expects the following properties to be loaded from the `Env`
 
 ```json
-export SLACK_WEBHOOK_URL='SLACK_WEBHOOK_URL=https://hooks.slack.com/services/SOMEVALUE/SOMEOTHERVALUE/SOMETOKENLOOKINGVALUE
+export SLACK_WEBHOOK_URL='SLACK_WEBHOOK_URL=https://hooks.slack.com/services/SOMEVALUE/SOMEOTHERVALUE/SOMETOKENLOOKINGVALUE'
 export SLACK_MESSAGE_ICON='https://avatars2.githubusercontent.com/u/459687?s=200&v=4'
 ```
 Running from the command line: (if built locally, by Maven. If not, adapt to suit)
@@ -25,12 +30,19 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/SOMEVALUE/SOMEOTHERVALUE/SOME
    SLACK_MESSAGE_ICON="https://avatars2.githubusercontent.com/u/459687?s=200&v=4" \
       java -cp target/classes \
         SimpleSlackWebhookClient \
-        "My Important Job" \
-        "Load data from some system" \
+        "Talend" \
+        "Load data from Member preferences" \
         "Failure" \
         "Job complete"
 ```
 
+Run, using make (which uses mvn exec. nb: Ensure env vars are exported ,see above)
+```
+make run
+
+# Using overridden values
+make run TITLE="BLAH" SUMMARY="my-summary" MSG_TEXT="Hello-World" STATUS="failure" 
+```
 ### Message template
 A very basic json message template is used to create the slack json message structure, using the [Slack Block Kit Builder](https://app.slack.com/block-kit-builder)
 
