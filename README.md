@@ -6,6 +6,15 @@ Using json template, created on https://app.slack.com/block-kit-builder
 
 ---
 
+### Github Actions build
+![Java CI with Maven](https://github.com/micklove/slack/workflows/Java%20CI%20with%20Maven/badge.svg)
+
+---
+
+### Branches
+* `main` branch uses jdk 11
+* `java18` branch for jdk 1.8
+
 ### Help
 ```bash
 make help
