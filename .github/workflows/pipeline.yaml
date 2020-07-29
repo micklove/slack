@@ -1,11 +1,9 @@
 # build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI with Maven
+name: Java CI with Maven - java 1.8
 
-on:
-  push:
-    branches: [ main ]
+on: [push]
 
 jobs:
   build:
@@ -14,10 +12,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11.0.3
+      - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
-          java-version: 11.0.3
+          java-version: 1.8
 
       - name: setup dependencies
         run: sudo apt-get install libxml2-utils

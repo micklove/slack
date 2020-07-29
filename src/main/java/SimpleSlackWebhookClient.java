@@ -1,38 +1,48 @@
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.net.http.HttpRequest.BodyPublishers.ofString;
-
 public class SimpleSlackWebhookClient {
 
 	public static void main(String[] args) {
+		loadAndSendSimpleSlackMessage(args);
+	}
+
+	public static void loadAndSendSimpleSlackMessage(String[] args) {
 		String title = args[0];
 		String summary = args[1];
 		String status = args[2];
 		String msg = args[3];
 
-		String webhookUrl = System.getenv("SLACK_WEBHOOK_URL");
-		String messageIconUrl = System.getenv("SLACK_MESSAGE_ICON");
+		String webhookUrl = getEnv("SLACK_WEBHOOK_URL");
+		String messageIconUrl = getEnv("SLACK_MESSAGE_ICON");
 
 		System.out.println("SLACK_WEBHOOK_URL=" + webhookUrl);
 		System.out.println("SLACK_MESSAGE_ICON=" + messageIconUrl);
 		sendSimpleSlackMessage(title, summary, status, msg, webhookUrl, messageIconUrl);
+
 	}
 
+	public static String getEnv(String envVar) {
+		String envValue = System.getenv(envVar);
+		if (envValue == null || envValue.isEmpty()) {
+			throw new IllegalArgumentException(envVar + " must be available as an ENV variable");
+		}
+		return envValue;
+	}
 
 	private static String loadFileToString() throws IOException {
 		ClassLoader classLoader = SimpleSlackWebhookClient.class.getClassLoader();
 
 		String slackMessage = "slack-message.json";
 		File file = new File(classLoader.getResource(slackMessage).getFile());
-		return Files.readString(file.toPath());
+		String content = new String(Files.readAllBytes(file.toPath()));
+		return content;
 	}
 
 	private static String getTemplatedMessage(String title, String summary, String status, String message, String messageIconUrl) throws IOException {
@@ -49,7 +59,7 @@ public class SimpleSlackWebhookClient {
 		vals.put("${STATUS_EMOJI}", statusEmoji);
 		vals.put("${MESSAGE}", message);
 		vals.put("${ICON_URL}", messageIconUrl);
-		for (var val : vals.entrySet()) {
+		for (Map.Entry<String, String> val : vals.entrySet()) {
 			result = slackTemplate.replace(val.getKey(), val.getValue());
 			slackTemplate = result;
 		}
@@ -58,23 +68,42 @@ public class SimpleSlackWebhookClient {
 
 	public static void sendSimpleSlackMessage(String title, String summary, String status, String message, String webhookUrl, String messageIconUrl ) {
 		try {
-			var requestBody = getTemplatedMessage(title, summary, status, message, messageIconUrl);
+			String requestBody = getTemplatedMessage(title, summary, status, message, messageIconUrl);
 			System.out.println(requestBody);
 
-			var client = HttpClient.newHttpClient();
-			HttpRequest request = HttpRequest.newBuilder()
-					.method("POST", ofString(requestBody))
-					.uri(URI.create(webhookUrl))
-					.build();
+			URL url = new URL(webhookUrl);
+			URLConnection con = url.openConnection();
+			HttpURLConnection http = (HttpURLConnection) con;
+			http.setRequestMethod("POST");
+			http.setDoOutput(true);
 
-			HttpResponse<String> response;
-
-			response = client.send(request,
-					HttpResponse.BodyHandlers.ofString());
-			System.out.println(response.body());
-		} catch (IOException | InterruptedException e) {
+			byte [] out = requestBody.getBytes(StandardCharsets.UTF_8);
+			int length = out.length;
+			http.setFixedLengthStreamingMode(length);
+			http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+			http.connect();
+			try(OutputStream os = http.getOutputStream()) {
+				os.write(out);
+			}
+			dumpResponse(http);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
 
+	public static void dumpResponse(HttpURLConnection http) {
+		try(BufferedReader br = new BufferedReader(
+				new InputStreamReader(http.getInputStream(), "utf-8"))) {
+			StringBuilder response = new StringBuilder();
+			String responseLine = null;
+			while ((responseLine = br.readLine()) != null) {
+				response.append(responseLine.trim());
+			}
+			System.out.println(response.toString());
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
