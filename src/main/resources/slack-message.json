@@ -18,7 +18,7 @@
       },
       "accessory": {
         "type": "image",
-        "image_url": "https://avatars2.githubusercontent.com/u/459687?s=200&v=4",
+        "image_url": "${ICON_URL}",
         "alt_text": "alt text for image"
       }
     },

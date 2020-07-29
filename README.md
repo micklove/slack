@@ -1,5 +1,5 @@
 ### SimpleSlackWebhookClient
-Simple slack webhook client, built in java
+Simple slack webhook client, built in java. (Using no external libs)
 
 Using json template, created on https://app.slack.com/block-kit-builder
 (details below)
@@ -17,6 +17,18 @@ The app expects the following properties to be loaded from the `Env`
 ```json
 export SLACK_WEBHOOK_URL='SLACK_WEBHOOK_URL=https://hooks.slack.com/services/SOMEVALUE/SOMEOTHERVALUE/SOMETOKENLOOKINGVALUE
 export SLACK_MESSAGE_ICON='https://avatars2.githubusercontent.com/u/459687?s=200&v=4'
+```
+Running from the command line: (if built locally, by Maven. If not, adapt to suit)
+
+```json
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/SOMEVALUE/SOMEOTHERVALUE/SOMETOKENLOOKINGVALUE \
+   SLACK_MESSAGE_ICON="https://avatars2.githubusercontent.com/u/459687?s=200&v=4" \
+      java -cp target/classes \
+        SimpleSlackWebhookClient \
+        "My Important Job" \
+        "Load data from some system" \
+        "Failure" \
+        "Job complete"
 ```
 
 ### Message template
